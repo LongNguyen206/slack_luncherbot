@@ -1,7 +1,11 @@
 require 'slack-ruby-bot'
 require 'giphy'
+require 'httparty'
+
+# SlackRubyBot::Client.logger.level = Logger::WARN
 
 class LuncherBot < SlackRubyBot::Bot
+
     help do
         title 'Luncherbot'
         desc 'Vote for your lunch option!'
@@ -13,16 +17,31 @@ class LuncherBot < SlackRubyBot::Bot
         end
     end
 
-    command 'vote' do |client, data, match|
-        client.say(text: "<@#{data.user}> initiated a vote! Please choose:\n1 - pizza\n2 - grilld\n3 - nandos", channel: data.channel)
-        op1, op2, op3 = 0
+    match(/^vote\s(?<input>\w*)$/) do |client, data, match|
+        if match['input'] =~ /^(0+)$/
+            client.say(text: "There is noone here to vote :cry:\n", channel: data.channel, gif: "alone")
+        elsif match['input'] =~ /^(\d+)$/ 
+            vote_num = match['input'].to_i
+            client.say(text: "<@#{data.user}> initiated a vote! There are #{vote_num} people voting. Please choose:\n1 - pizza\n2 - grilld\n3 - nandos", channel: data.channel)
+            op1, op2, op3 = 0
+
+        else
+            client.say(text: "Cmooooon! '#{match['input']}' is not a number!!! :expressionless:\n", channel: data.channel, gif: "dumb")
+        end     
     end
-    command '1' do |client, data, match|
-        op1 += 1
-        client.say(text: "#{op1} vote for pizza", channel: data.channel)
-    end
+
+    # class << self
+    #     def parse_input(_match)
+    #       limit = _match[:expression] if limit.to_i.to_s == limit
+    #       {
+    #         limit: limit || DEFAULT_LIMIT
+    #       }
+    #     end
+    # end
 end
+
 SlackRubyBot.configure do |config|
-    config.aliases = ['lunch', 'food']
-  end
+    config.aliases = ['lunch']
+end
+
 LuncherBot.run
