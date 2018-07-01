@@ -15,68 +15,86 @@ class LuncherBot < SlackRubyBot::Bot
             'The bot will keep registering votes equal to the number of voters.'
         end
     end
+
     @vote_initiated = false
     # use hashes for options and vote count
-    match(/^lunch vote\s(?<input>\w*)$/) do |client, data, match|
+    match(/^vote\s(?<input>\w*)$/) do |client, data, match|
         if match['input'] =~ /^(0+)$/
             client.say(text: "There is noone here to vote :cry:\n", channel: data.channel, gif: "alone")
             @vote_initiated = false
         elsif match['input'] =~ /^(\d+)$/ 
             @vote_initiated = true
+            @options = [{ name: "pizza", votes: 0 }, { name: "Grill'd", votes: 0 }, { name: "Nandos", votes: 0 }]
             @vote_num = match['input'].to_i
-            client.say(text: "<@#{data.user}> initiated a vote! There are #{@vote_num} people voting. Please choose:\n1 - pizza\n2 - Grill'd\n3 - Nandos", channel: data.channel)
-            @op1 = 0
-            @op2 = 0
-            @op3 = 0
-            @votes = 0
-            # @options = { pizza: 0, Grilld: 0, Nandos: 0 }
+            client.say(text: "<@#{data.user}> initiated a vote! There are #{@vote_num} people voting. Please choose:\n1 - #{@options[0][:name]}\n2 - #{@options[1][:name]}\n3 - #{@options[2][:name]}", channel: data.channel)
+            @votes_current = 0
+            # @op1 = 0
+            # @op2 = 0
+            # @op3 = 0
         else
             client.say(text: "Cmooooon! '#{match['input']}' is not a number!!! :expressionless:\n", channel: data.channel, gif: "idiot")
             @vote_initiated = false
         end     
     end
 
-    
-        match(/^(?<choice>\w)$/) do |client, data, match|
-            # if @votes <= @vote_num
-                if @vote_initiated == true
-                    if @votes < @vote_num
-                        if match['choice'].to_i == 1
-                            @op1 += 1
-                            @votes += 1
-                            if @op1 == 1
-                                client.say(text: "#{@op1} vote for pizza!\n", channel: data.channel)
-                            else
-                                client.say(text: "#{@op1} votes for pizza!\n", channel: data.channel)
-                            end
-                        elsif match['choice'].to_i == 2
-                            @op2 += 1
-                            @votes += 1
-                            if @op2 == 1
-                                client.say(text: "#{@op2} vote for Grill'd!\n", channel: data.channel)
-                            else
-                                client.say(text: "#{@op2} votes for Grill'd!\n", channel: data.channel)
-                            end
-                        elsif match['choice'].to_i == 3
-                            @op3 += 1
-                            @votes += 1
-                            if @op3 == 1
-                                client.say(text: "#{@op3} vote for Nandos!\n", channel: data.channel)
-                            else
-                                client.say(text: "#{@op3} votes for Nandos!\n", channel: data.channel)
-                            end
-                        else
-                            client.say(text: "No such option!\n", channel: data.channel, gif: 'idiot')
-                        end
+    match(/^(?<choice>\w)$/) do |client, data, match|
+        if @vote_initiated == true
+            if @votes_current < @vote_num
+                if match['choice'].to_i == 1
+                    @votes_current += 1
+                    @options[0][:votes] += 1
+                    if @options[0][:votes] == 1
+                        client.say(text: "#{@options[0][:votes]} vote for #{@options[0][:name]}!\n", channel: data.channel)
                     else
-                        client.say(text: "All votes counted!\n", channel: data.channel)
-                        @vote_initiated = false
+                        client.say(text: "#{@options[0][:votes]} votes for #{@options[0][:name]}!\n", channel: data.channel)
+                    end
+                elsif match['choice'].to_i == 2
+                    @votes_current += 1
+                    @options[1][:votes] += 1
+                    if @options[1][:votes] == 1
+                        client.say(text: "#{@options[1][:votes]} vote for #{@options[1][:name]}!\n", channel: data.channel)
+                    else
+                        client.say(text: "#{@options[1][:votes]} votes for #{@options[1][:name]}!\n", channel: data.channel)
+                    end
+                elsif match['choice'].to_i == 3
+                    @votes_current += 1
+                    @options[2][:votes] += 1
+                    if @options[2][:votes] == 1
+                        client.say(text: "#{@options[2][:votes]} vote for #{@options[2][:name]}!\n", channel: data.channel)
+                    else
+                        client.say(text: "#{@options[2][:votes]} votes for #{@options[2][:name]}!\n", channel: data.channel)
                     end
                 else
-                    client.say(text: "Please initiate a vote!\n", channel: data.channel)
+                    client.say(text: "No such option!\n", channel: data.channel, gif: 'idiot')
                 end
-            # end
+            else
+                @vote_initiated = false
+            end
+
+            array = Array.new
+            winner = String.new
+            winners_array = Array.new
+            @options.each do |hash|
+                array << hash[:votes]
+                max_votes = array.max
+                if hash[:votes] == max_votes
+                    winners_array << hash
+                    winner = winners_array.sample[:name]
+                end 
+            end
+
+            if @votes_current == @vote_num
+                client.say(text: "Voting is over\n", channel: data.channel)
+                @options.each do |hash|
+                    client.say(text: "Option #{hash[:name]} got #{hash[:votes]} votes\n", channel: data.channel)
+                end
+                client.say(text: "The winner is #{winner}\n (randomized in case of equal votes)", channel: data.channel)
+            end
+        else
+            client.say(text: "Please initiate a vote!\n", channel: data.channel)
         end
+    end
+    
     # class << self
     #     def parse_input(_match)
     #       limit = _match[:expression] if limit.to_i.to_s == limit
