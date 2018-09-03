@@ -24,9 +24,9 @@ class LuncherBot < SlackRubyBot::Bot
             @vote_initiated = false
         elsif match['input'] =~ /^(\d+)$/ 
             @vote_initiated = true
-            @options = [{ name: "pizza", votes: 0 }, { name: "Grill'd", votes: 0 }, { name: "Nandos", votes: 0 }]
+            @options = [{ name: "Nandos", votes: 0 }, { name: "Grill'd", votes: 0 }, { name: "Ramen", votes: 0 }, { name: "Snackpack", votes: 0 }]
             @vote_num = match['input'].to_i
-            client.say(text: "<@#{data.user}> initiated a vote! There are #{@vote_num} people voting. Please choose:\n1 - #{@options[0][:name]}\n2 - #{@options[1][:name]}\n3 - #{@options[2][:name]}", channel: data.channel)
+            client.say(text: "<@#{data.user}> initiated a vote! There are #{@vote_num} people voting. Please choose:\n1 - #{@options[0][:name]}\n2 - #{@options[1][:name]}\n3 - #{@options[2][:name]}\n4 - #{@options[3][:name]}", channel: data.channel)
             @votes_current = 0
         else
             client.say(text: "Cmooooon! '#{match['input']}' is not a number!!! :expressionless:\n", channel: data.channel, gif: "idiot")
@@ -40,23 +40,19 @@ class LuncherBot < SlackRubyBot::Bot
                 if match['choice'] =~ /1|#{@options[0][:name]}/
                     @votes_current += 1
                     @options[0][:votes] += 1
-                    if @options[0][:votes] == 1
-                        client.say(text: "#{@options[0][:votes]} vote for #{@options[0][:name]}!\n", channel: data.channel)
-                    else
-                        client.say(text: "#{@options[0][:votes]} votes for #{@options[0][:name]}!\n", channel: data.channel)
-                    end
+                    client.say(text: "#{@options[0][:votes]} #{@options[0][:votes] == 1 ? "vote" : "votes"} for #{@options[0][:name]}!\n", channel: data.channel)
                 elsif match['choice'] =~ /2|#{@options[1][:name]}/
                     @votes_current += 1
                     @options[1][:votes] += 1
-                    if @options[1][:votes] == 1
-                        client.say(text: "#{@options[1][:votes]} vote for #{@options[1][:name]}!\n", channel: data.channel)
-                    else
-                        client.say(text: "#{@options[1][:votes]} votes for #{@options[1][:name]}!\n", channel: data.channel)
-                    end
+                    client.say(text: "#{@options[1][:votes]} #{@options[1][:votes] == 1 ? "vote" : "votes"} for #{@options[1][:name]}!\n", channel: data.channel)
                 elsif match['choice'] =~ /3|#{@options[2][:name]}/
                     @votes_current += 1
                     @options[2][:votes] += 1
                     client.say(text: "#{@options[2][:votes]} #{@options[2][:votes] == 1 ? "vote" : "votes"} for #{@options[2][:name]}!\n", channel: data.channel)
+                elsif match['choice'] =~ /4|#{@options[3][:name]}/
+                    @votes_current += 1
+                    @options[3][:votes] += 1
+                    client.say(text: "#{@options[3][:votes]} #{@options[3][:votes] == 1 ? "vote" : "votes"} for #{@options[3][:name]}!\n", channel: data.channel)
                 else
                     client.say(text: "No such option!\n", channel: data.channel, gif: 'idiot')
                 end
@@ -68,13 +64,15 @@ class LuncherBot < SlackRubyBot::Bot
             winner = String.new
             winners_array = Array.new
             @options.each do |hash|
-                array << hash[:votes]
-                max_votes = array.max
+                array.push(hash[:votes])
+            end
+            max_votes = array.max
+            @options.each do |hash|
                 if hash[:votes] == max_votes
-                    winners_array << hash
-                    winner = winners_array.sample[:name]
+                    winners_array.push(hash)
                 end 
             end
+            winner = winners_array.sample[:name]
 
             if @votes_current == @vote_num
                 client.say(text: "*Voting is over*\n", channel: data.channel)
@@ -87,15 +85,6 @@ class LuncherBot < SlackRubyBot::Bot
             client.say(text: "Please initiate a vote!\n", channel: data.channel)
         end
     end
-    
-    # class << self
-    #     def parse_input(_match)
-    #       limit = _match[:expression] if limit.to_i.to_s == limit
-    #       {
-    #         limit: limit || DEFAULT_LIMIT
-    #       }
-    #     end
-    # end
 end
 
 SlackRubyBot.configure do |config|
