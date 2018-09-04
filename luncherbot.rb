@@ -77,7 +77,6 @@ class LuncherBot < SlackRubyBot::Bot
                 else
                     client.say(text: "No such option!\n", channel: data.channel, gif: 'idiot')
                 end
-                client.say(text: "#{users_voted}\n", channel: data.channel)
             else
                 @vote_initiated = false
             end
