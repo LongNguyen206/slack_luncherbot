@@ -22,9 +22,10 @@ class LuncherBot < SlackRubyBot::Bot
         if match['input'] =~ /^(0+)$/
             client.say(text: "There is noone here to vote :cry:\n", channel: data.channel, gif: "alone")
             @vote_initiated = false
-        elsif match['input'] =~ /^(\d+)$/ 
+        elsif match['input'] =~ /^(\d+)$/
+            @users_voted = Array.new
             @vote_initiated = true
-            @options = [{ name: "Nandos", votes: 0 }, { name: "Grill'd", votes: 0 }, { name: "Ramen", votes: 0 }, { name: "Snackpack", votes: 0 }]
+            @options = [{ name: "Nandos", votes: 0 }, { name: "Grill'd", votes: 0 }, { name: "Ramen", votes: 0 }, { name: "Turkish", votes: 0 }]
             @vote_num = match['input'].to_i
             client.say(text: "<@#{data.user}> initiated a vote! There are #{@vote_num} people voting. Please choose:\n1 - #{@options[0][:name]}\n2 - #{@options[1][:name]}\n3 - #{@options[2][:name]}\n4 - #{@options[3][:name]}", channel: data.channel)
             @votes_current = 0
@@ -38,24 +39,45 @@ class LuncherBot < SlackRubyBot::Bot
         if @vote_initiated == true
             if @votes_current < @vote_num
                 if match['choice'] =~ /1|#{@options[0][:name]}/
-                    @votes_current += 1
-                    @options[0][:votes] += 1
-                    client.say(text: "#{@options[0][:votes]} #{@options[0][:votes] == 1 ? "vote" : "votes"} for #{@options[0][:name]}!\n", channel: data.channel)
+                    if @users_voted.include? "#{data.user}"
+                        client.say(text: "<@#{data.user}> has already voted\n", channel: data.channel, gif: "greedy")
+                    else
+                        @users_voted.push("#{data.user}")
+                        @votes_current += 1
+                        @options[0][:votes] += 1
+                        client.say(text: "#{@options[0][:votes]} #{@options[0][:votes] == 1 ? "vote" : "votes"} for #{@options[0][:name]}!\n", channel: data.channel)
+                    end
                 elsif match['choice'] =~ /2|#{@options[1][:name]}/
-                    @votes_current += 1
-                    @options[1][:votes] += 1
-                    client.say(text: "#{@options[1][:votes]} #{@options[1][:votes] == 1 ? "vote" : "votes"} for #{@options[1][:name]}!\n", channel: data.channel)
+                    if @users_voted.include? "#{data.user}"
+                        client.say(text: "<@#{data.user}> has already voted\n", channel: data.channel, gif: "greedy")
+                    else
+                        @users_voted.push(data.user)
+                        @votes_current += 1
+                        @options[1][:votes] += 1
+                        client.say(text: "#{@options[1][:votes]} #{@options[1][:votes] == 1 ? "vote" : "votes"} for #{@options[1][:name]}!\n", channel: data.channel)
+                    end
                 elsif match['choice'] =~ /3|#{@options[2][:name]}/
-                    @votes_current += 1
-                    @options[2][:votes] += 1
-                    client.say(text: "#{@options[2][:votes]} #{@options[2][:votes] == 1 ? "vote" : "votes"} for #{@options[2][:name]}!\n", channel: data.channel)
+                    if @users_voted.include? "#{data.user}"
+                        client.say(text: "<@#{data.user}> has already voted\n", channel: data.channel, gif: "greedy")
+                    else
+                        @users_voted.push(data.user)
+                        @votes_current += 1
+                        @options[2][:votes] += 1
+                        client.say(text: "#{@options[2][:votes]} #{@options[2][:votes] == 1 ? "vote" : "votes"} for #{@options[2][:name]}!\n", channel: data.channel)
+                    end
                 elsif match['choice'] =~ /4|#{@options[3][:name]}/
-                    @votes_current += 1
-                    @options[3][:votes] += 1
-                    client.say(text: "#{@options[3][:votes]} #{@options[3][:votes] == 1 ? "vote" : "votes"} for #{@options[3][:name]}!\n", channel: data.channel)
+                    if @users_voted.include? "#{data.user}"
+                        client.say(text: "<@#{data.user}> has already voted\n", channel: data.channel, gif: "greedy")
+                    else
+                        @users_voted.push(data.user)
+                        @votes_current += 1
+                        @options[3][:votes] += 1
+                        client.say(text: "#{@options[3][:votes]} #{@options[3][:votes] == 1 ? "vote" : "votes"} for #{@options[3][:name]}!\n", channel: data.channel)
+                    end
                 else
                     client.say(text: "No such option!\n", channel: data.channel, gif: 'idiot')
                 end
+                client.say(text: "#{users_voted}\n", channel: data.channel)
             else
                 @vote_initiated = false
             end
