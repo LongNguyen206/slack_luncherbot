@@ -5,6 +5,7 @@ require 'giphy'
 
 class LuncherBot < SlackRubyBot::Bot
 
+    # help section, can be accessed via '@luncherbot help' command in Slack
     help do
         title 'Luncherbot'
         desc 'Vote for your lunch option!'
@@ -16,8 +17,15 @@ class LuncherBot < SlackRubyBot::Bot
         end
     end
 
+    # demo command
+    command 'ping' do |client, data, match|
+        client.say(text: 'pong', channel: data.channel)
+    end
+
+    # define a boolean that will check if the vote has been initiated
     @vote_initiated = false
 
+    # command to initiate a voting: v/Vote <number_of _voters>
     match(/^(v|V)ote\s(?<input>\w*)$/) do |client, data, match|
         if match['input'] =~ /^(0+)$/
             client.say(text: "There is noone here to vote :cry:\n", channel: data.channel, gif: "alone")

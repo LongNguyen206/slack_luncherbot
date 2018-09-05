@@ -5,7 +5,7 @@ A Slack bot that allows your team to vote for lunch options! Built with [slack-r
 
 ## Instructions:
 1. Clone the repo: `git clone https://github.com/LongNguyen206/slack_luncherbot.git`
-2. Create a new Bot Integration ![here](http://slack.com/services/new/bot)
+2. Create a new Bot Integration [here](http://slack.com/services/new/bot)
 3. Use the 'luncherbot' Username to avoid conflicts
 4. Take note of the SLACK_API_TOKEN on the next page
 5. Run with `SLACK_API_TOKEN=... bundle exec ruby luncherbot.rb`, where '...' is your generated API
