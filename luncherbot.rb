@@ -33,7 +33,7 @@ class LuncherBot < SlackRubyBot::Bot
         elsif match['input'] =~ /^(\d+)$/
             @users_voted = Array.new
             @vote_initiated = true
-            @options = [{ name: "Nandos", votes: 0 }, { name: "Grill'd", votes: 0 }, { name: "Ramen", votes: 0 }, { name: "Turkish", votes: 0 }]
+            @options = [{ name: "Sushi", votes: 0 }, { name: "Meatpie", votes: 0 }, { name: "I will steal your food", votes: 0 }, { name: "I brought my own sh*t", votes: 0 }]
             @vote_num = match['input'].to_i
             client.say(text: "<@#{data.user}> initiated a vote! There are #{@vote_num} people voting. Please choose:\n1 - #{@options[0][:name]}\n2 - #{@options[1][:name]}\n3 - #{@options[2][:name]}\n4 - #{@options[3][:name]}", channel: data.channel)
             @votes_current = 0
